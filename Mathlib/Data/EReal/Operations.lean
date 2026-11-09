@@ -486,6 +486,28 @@ lemma add_le_of_le_sub {a b c : EReal} (h : a ≤ b - c) : a + c ≤ b := by
   rw [← neg_neg c]
   exact sub_le_of_le_add h
 
+/-- A real constant can be subtracted outside a supremum, including an empty supremum. -/
+theorem iSup_sub_coe {ι : Sort*} (f : ι → EReal) (a : ℝ) :
+    (⨆ i, (f i - (a : EReal))) = (⨆ i, f i) - (a : EReal) := by
+  refine le_antisymm (iSup_le fun i ↦ EReal.sub_le_sub (le_iSup f i) le_rfl) ?_
+  rw [sub_le_iff_le_add (.inl (coe_ne_bot a)) (.inl (coe_ne_top a))]
+  exact iSup_le fun i ↦
+    (sub_le_iff_le_add (.inl (coe_ne_bot a)) (.inl (coe_ne_top a))).1
+      (le_iSup (fun i ↦ f i - (a : EReal)) i)
+
+/-- A sum ending in a real constant can be subtracted term by term from a real number. -/
+theorem coe_sub_add_coe (b : EReal) (d a : ℝ) :
+    (d : EReal) - (b + (a : EReal)) = (d : EReal) - b - (a : EReal) := by
+  induction b with
+  | bot => simp
+  | coe b => norm_cast; ring
+  | top => simp
+
+/-- With a real minuend, the subtrahend and the upper bound can be exchanged. -/
+theorem coe_sub_le_comm {r : ℝ} {a b : EReal} :
+    (r : EReal) - a ≤ b ↔ (r : EReal) - b ≤ a := by
+  induction a <;> induction b <;> simp [← EReal.coe_sub, add_comm]
+
 lemma sub_lt_iff {a b c : EReal} (h₁ : b ≠ ⊥ ∨ c ≠ ⊥) (h₂ : b ≠ ⊤ ∨ c ≠ ⊤) :
     c - b < a ↔ c < a + b :=
   lt_iff_lt_of_le_iff_le (le_sub_iff_add_le h₁ h₂)
