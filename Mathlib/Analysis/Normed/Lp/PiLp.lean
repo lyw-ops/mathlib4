@@ -878,43 +878,72 @@ section piLpCongrLeft
 variable {ι' : Type*}
 variable [Fintype ι']
 variable (p 𝕜)
-variable (E : Type*) [SeminormedAddCommGroup E] [Module 𝕜 E]
+variable (E : ι' → Type*) [∀ i, SeminormedAddCommGroup (E i)] [∀ i, Module 𝕜 (E i)]
 
-/-- An equivalence of finite domains induces a linearly isometric equivalence of finitely supported
-functions. -/
+/-- Reindex dependent finite products through an equivalence of the index types.
+
+This is `LinearEquiv.piCongrLeft` as a linear isometry equivalence. -/
 def _root_.LinearIsometryEquiv.piLpCongrLeft (e : ι ≃ ι') :
-    (PiLp p fun _ : ι => E) ≃ₗᵢ[𝕜] PiLp p fun _ : ι' => E where
-  toLinearEquiv := (WithLp.linearEquiv p 𝕜 (ι → E)).trans
-    ((LinearEquiv.piCongrLeft' 𝕜 (fun _ : ι => E) e).trans (WithLp.linearEquiv p 𝕜 (ι' → E)).symm)
-  norm_map' x' := by
+    (PiLp p fun i ↦ E (e i)) ≃ₗᵢ[𝕜] PiLp p E where
+  toLinearEquiv := (WithLp.linearEquiv p 𝕜 _).trans
+    ((LinearEquiv.piCongrLeft 𝕜 E e).trans (WithLp.linearEquiv p 𝕜 _).symm)
+  norm_map' x := by
+    let y := Equiv.piCongrLeft E e (ofLp x)
+    change ‖toLp p y‖ = ‖x‖
+    have hy (i : ι) : y (e i) = x i := Equiv.piCongrLeft_apply_apply E e (ofLp x) i
     rcases p.dichotomy with (rfl | h)
-    · simp_rw [norm_eq_ciSup]
-      exact e.symm.iSup_congr fun _ => rfl
-    · simp only [norm_eq_sum (zero_lt_one.trans_le h)]
+    · rw [norm_eq_ciSup, norm_eq_ciSup]
+      simpa only [toLp_apply, hy] using (e.iSup_comp (g := fun j ↦ ‖y j‖)).symm
+    · rw [norm_eq_sum (zero_lt_one.trans_le h), norm_eq_sum (zero_lt_one.trans_le h)]
       congr 1
-      exact Fintype.sum_equiv e.symm _ _ fun _ => rfl
+      simpa only [toLp_apply, hy] using (e.sum_comp fun j ↦ ‖y j‖ ^ p.toReal).symm
 
 variable {p 𝕜 E}
 
 @[simp]
-theorem _root_.LinearIsometryEquiv.piLpCongrLeft_apply (e : ι ≃ ι') (v : PiLp p fun _ : ι => E) :
-    LinearIsometryEquiv.piLpCongrLeft p 𝕜 E e v = Equiv.piCongrLeft' (fun _ : ι => E) e v :=
+theorem _root_.LinearIsometryEquiv.piLpCongrLeft_apply (e : ι ≃ ι')
+    (v : PiLp p fun i ↦ E (e i)) :
+    LinearIsometryEquiv.piLpCongrLeft p 𝕜 E e v = toLp p (Equiv.piCongrLeft E e (ofLp v)) :=
+  rfl
+
+theorem _root_.LinearIsometryEquiv.piLpCongrLeft_apply_apply (e : ι ≃ ι')
+    (v : PiLp p fun i ↦ E (e i)) (i : ι) :
+    LinearIsometryEquiv.piLpCongrLeft p 𝕜 E e v (e i) = v i :=
+  Equiv.piCongrLeft_apply_apply E e (ofLp v) i
+
+@[simp]
+theorem _root_.LinearIsometryEquiv.piLpCongrLeft_symm_apply (e : ι ≃ ι')
+    (v : PiLp p E) (i : ι) :
+    (LinearIsometryEquiv.piLpCongrLeft p 𝕜 E e).symm v i = v (e i) :=
   rfl
 
 @[simp]
-theorem _root_.LinearIsometryEquiv.piLpCongrLeft_symm (e : ι ≃ ι') :
-    (LinearIsometryEquiv.piLpCongrLeft p 𝕜 E e).symm =
-      LinearIsometryEquiv.piLpCongrLeft p 𝕜 E e.symm := by
-  ext
-  simp [LinearIsometryEquiv.piLpCongrLeft, LinearIsometryEquiv.symm]
+theorem _root_.LinearIsometryEquiv.piLpCongrLeft_refl :
+    LinearIsometryEquiv.piLpCongrLeft p 𝕜 E (Equiv.refl ι') = .refl 𝕜 (PiLp p E) :=
+  rfl
+
+@[simp]
+theorem _root_.LinearIsometryEquiv.piLpCongrLeft_symm {F : Type*}
+    [SeminormedAddCommGroup F] [Module 𝕜 F] (e : ι ≃ ι') :
+    (LinearIsometryEquiv.piLpCongrLeft p 𝕜 (fun _ : ι' ↦ F) e).symm =
+      LinearIsometryEquiv.piLpCongrLeft p 𝕜 (fun _ : ι ↦ F) e.symm := by
+  ext x i
+  rw [LinearIsometryEquiv.piLpCongrLeft_symm_apply]
+  simpa only [Equiv.symm_apply_apply] using
+    (LinearIsometryEquiv.piLpCongrLeft_apply_apply
+      (E := fun _ : ι ↦ F) e.symm x (e i)).symm
 
 @[simp high]
 theorem _root_.LinearIsometryEquiv.piLpCongrLeft_single [DecidableEq ι] [DecidableEq ι']
-    (e : ι ≃ ι') (i : ι) (v : E) :
+    (e : ι ≃ ι') (i : ι) (v : E (e i)) :
     LinearIsometryEquiv.piLpCongrLeft p 𝕜 E e (single p i v) = single p (e i) v := by
-  ext x
-  simp [LinearIsometryEquiv.piLpCongrLeft_apply, Equiv.piCongrLeft',
-    Pi.single, Function.update, Equiv.symm_apply_eq]
+  ext j
+  obtain ⟨j, rfl⟩ := e.surjective j
+  by_cases h : j = i
+  · subst j
+    simp
+  · have he : e j ≠ e i := fun hji ↦ h (e.injective hji)
+    simp [h, he]
 
 end piLpCongrLeft
 
