@@ -37,6 +37,7 @@ variable {n R : Type*} [Fintype n] [DecidableEq n] [CommRing R]
 adjugate times the matrix of replacement rows. -/
 theorem sum_det_updateRow_eq_trace_adjugate_mul (A B : Matrix n n R) :
     ∑ i, (A.updateRow i (B i)).det = (adjugate A * B).trace := by
+  -- Apply Cramer's rule to the transposed matrix, then interchange the two sums.
   simp only [← cramer_transpose_apply, cramer_eq_adjugate_mulVec, ← adjugate_transpose, trace,
     diag_apply, Matrix.mul_apply, mulVec, dotProduct, transpose_apply]
   exact Finset.sum_comm
@@ -45,6 +46,7 @@ theorem sum_det_updateRow_eq_trace_adjugate_mul (A B : Matrix n n R) :
 adjugate times the matrix of replacement columns. -/
 theorem sum_det_updateCol_eq_trace_adjugate_mul (A B : Matrix n n R) :
     ∑ j, (A.updateCol j fun i ↦ B i j).det = (adjugate A * B).trace := by
+  -- Apply Cramer's rule to each replacement column, then unfold the trace.
   simp only [← cramer_apply, cramer_eq_adjugate_mulVec, trace, diag_apply, Matrix.mul_apply, mulVec,
     dotProduct]
 

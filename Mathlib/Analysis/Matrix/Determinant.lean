@@ -35,6 +35,12 @@ Finite index types may be empty; no completeness assumption on the field is need
 
 The proof treats the determinant as a continuous multilinear map of its rows.
 The matrix norm used here is the `L∞` operator norm (`Matrix.Norms.Operator`).
+The multilinear representation uses the sup norm on `n → n → 𝕜`. These norms differ,
+but the topological structures are definitionally equal. Mathlib defines derivatives
+using `IsLittleOTVS`, so the derivative statements transfer by unfolding without
+identifying the norms. The continuous linear map in `Matrix.contDiff_det` makes
+the change of norm explicit in the smoothness proof.
+
 The multilinear proof is adapted from
 [Tau Ceti](https://github.com/TauCetiProject/TauCeti/blob/ed6c0aa3acc0a3cb56901dc406167cdbad593f59/TauCeti/Analysis/Calculus/FDeriv/Det.lean),
 which generalizes the real determinant calculus from the
@@ -51,32 +57,22 @@ variable {n : Type*} [Fintype n] [DecidableEq n] {𝕜 : Type*} [NontriviallyNor
 
 private noncomputable def detMultilinear :
     ContinuousMultilinearMap 𝕜 (fun _ : n ↦ n → 𝕜) 𝕜 :=
+  -- Represent the determinant on the product of its rows, with the sup norm.
   { (detRowAlternating : (n → 𝕜) [⋀^n]→ₗ[𝕜] 𝕜).toMultilinearMap with
-    cont := by
-      change Continuous (fun M : n → n → 𝕜 ↦ (Matrix.of M).det)
-      simp only [det_apply, Matrix.of_apply]
-      fun_prop }
+    cont := continuous_id.matrix_det }
 
 /-- The determinant is smooth at every square matrix, including singular matrices. -/
 @[fun_prop]
 theorem contDiff_det {r : ℕ∞ω} : ContDiff 𝕜 r (det : Matrix n n 𝕜 → 𝕜) := by
+  -- The identity from operator-normed matrices to the sup-normed product of rows.
   let L : Matrix n n 𝕜 →L[𝕜] (n → n → 𝕜) :=
-    { (Matrix.ofLinearEquiv 𝕜).symm.toLinearMap with cont := by exact continuous_id }
+    { (Matrix.ofLinearEquiv 𝕜).symm.toLinearMap with cont := continuous_id }
   exact (detMultilinear (n := n) (𝕜 := 𝕜)).contDiff.comp L.contDiff
 
 /-- The determinant is differentiable without a completeness assumption on the field. -/
 @[fun_prop]
 theorem differentiable_det : Differentiable 𝕜 (det : Matrix n n 𝕜 → 𝕜) :=
-  fun A ↦ (detMultilinear.hasFDerivAt (fun i ↦ A i)).differentiableAt
-
-/-- The differential of the determinant is the sum of determinants with one row replaced. -/
-theorem fderiv_det_eq_sum_updateRow (A H : Matrix n n 𝕜) :
-    fderiv 𝕜 det A H = ∑ i, (A.updateRow i (H i)).det := by
-  -- Present the determinant as the continuous multilinear map of its rows.
-  change fderiv 𝕜 (detMultilinear : (n → n → 𝕜) → 𝕜) (fun i ↦ A i) (fun i ↦ H i) = _
-  rw [(detMultilinear.hasFDerivAt (fun i ↦ A i)).fderiv,
-    ContinuousMultilinearMap.linearDeriv_apply]
-  exact Finset.sum_congr rfl fun _ _ ↦ rfl
+  contDiff_det.differentiable one_ne_zero
 
 /-- **Jacobi's formula** for the strict derivative, valid also at singular matrices. -/
 theorem hasStrictFDerivAt_det (A : Matrix n n 𝕜) :
@@ -86,10 +82,10 @@ theorem hasStrictFDerivAt_det (A : Matrix n n 𝕜) :
   refine (detMultilinear.hasStrictFDerivAt (fun i ↦ A i)).congr_fderiv ?_
   ext H
   rw [ContinuousMultilinearMap.linearDeriv_apply]
-  change (∑ i, (A.updateRow i (H i)).det) = trace (A.adjugate * Matrix.of H)
-  exact sum_det_updateRow_eq_trace_adjugate_mul A (Matrix.of H)
+  exact sum_det_updateRow_eq_trace_adjugate_mul A H
 
-/-- **Jacobi's formula** for the Fréchet derivative, with no invertibility premise. -/
+/-- **Jacobi's formula** for the Fréchet derivative, with no invertibility premise.
+For rewriting, use `Matrix.fderiv_det_apply`. -/
 theorem hasFDerivAt_det (A : Matrix n n 𝕜) :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       ((⟨traceLinearMap n 𝕜 𝕜, continuous_id.matrix_trace⟩ : Matrix n n 𝕜 →L[𝕜] 𝕜).comp
@@ -100,6 +96,11 @@ theorem hasFDerivAt_det (A : Matrix n n 𝕜) :
 theorem fderiv_det_apply (A H : Matrix n n 𝕜) :
     fderiv 𝕜 det A H = trace (A.adjugate * H) :=
   congrArg (fun L : Matrix n n 𝕜 →L[𝕜] 𝕜 ↦ L H) (hasFDerivAt_det A).fderiv
+
+/-- The differential of the determinant is the sum of determinants with one row replaced. -/
+theorem fderiv_det_eq_sum_updateRow (A H : Matrix n n 𝕜) :
+    fderiv 𝕜 det A H = ∑ i, (A.updateRow i (H i)).det := by
+  rw [fderiv_det_apply, sum_det_updateRow_eq_trace_adjugate_mul]
 
 /-- The inverse form of Jacobi's formula at a matrix with invertible determinant. -/
 theorem fderiv_det_apply_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det)
