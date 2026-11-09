@@ -2011,6 +2011,7 @@ public import Mathlib.Analysis.Convex.BetweenList
 public import Mathlib.Analysis.Convex.Birkhoff
 public import Mathlib.Analysis.Convex.Body
 public import Mathlib.Analysis.Convex.Caratheodory
+public import Mathlib.Analysis.Convex.Coercivity
 public import Mathlib.Analysis.Convex.Combination
 public import Mathlib.Analysis.Convex.Cone.Basic
 public import Mathlib.Analysis.Convex.Cone.Closure
