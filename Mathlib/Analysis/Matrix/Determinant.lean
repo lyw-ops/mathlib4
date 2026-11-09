@@ -22,6 +22,18 @@ derivative at `A` sends `H` to `trace (adjugate A * H)`, including when `A` is
 singular. At an invertible matrix this is `det A * trace (A⁻¹ * H)`.
 Finite index types may be empty; no completeness assumption on the field is needed.
 
+## Main results
+
+* `Matrix.contDiff_det`: smoothness of the determinant.
+* `Matrix.hasStrictFDerivAt_det` and `Matrix.hasFDerivAt_det`: Jacobi's adjugate formula.
+* `Matrix.fderiv_det_apply`: the differential evaluated on a matrix direction.
+* `Matrix.hasFDerivAt_det_of_isUnit`: Jacobi's formula in terms of the inverse matrix.
+* `Matrix.hasFDerivAt_det_one`: the differential at the identity is the trace.
+* `Matrix.hasDerivAt_det_one_add_smul`: the derivative of `det (1 + t • B)` at zero.
+
+## Implementation details
+
+The proof treats the determinant as a continuous multilinear map of its rows.
 The matrix norm used here is the `L∞` operator norm (`Matrix.Norms.Operator`).
 The multilinear proof is adapted from
 [Tau Ceti](https://github.com/TauCetiProject/TauCeti/blob/ed6c0aa3acc0a3cb56901dc406167cdbad593f59/TauCeti/Analysis/Calculus/FDeriv/Det.lean),

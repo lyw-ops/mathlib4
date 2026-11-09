@@ -16,6 +16,13 @@ corresponding row or column of `B` gives `trace (adjugate A * B)`.
 These algebraic forms of Jacobi's formula work over any commutative ring,
 including singular matrices and empty index types.
 
+## Main results
+
+* `Matrix.sum_det_updateRow_eq_trace_adjugate_mul`: the row-replacement identity.
+* `Matrix.sum_det_updateCol_eq_trace_adjugate_mul`: the column-replacement identity.
+
+## Implementation details
+
 The proofs are adapted from
 [Tau Ceti](https://github.com/TauCetiProject/TauCeti/blob/ed6c0aa3acc0a3cb56901dc406167cdbad593f59/TauCeti/LinearAlgebra/Matrix/Adjugate/Basic.lean).
 -/
