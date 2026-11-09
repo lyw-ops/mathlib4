@@ -2181,6 +2181,7 @@ public import Mathlib.Analysis.Matrix.GelfandRadius
 public import Mathlib.Analysis.Matrix.Hermitian
 public import Mathlib.Analysis.Matrix.HermitianFunctionalCalculus
 public import Mathlib.Analysis.Matrix.LDL
+public import Mathlib.Analysis.Matrix.LogDet
 public import Mathlib.Analysis.Matrix.MeasurableSpace
 public import Mathlib.Analysis.Matrix.Normed
 public import Mathlib.Analysis.Matrix.Order
