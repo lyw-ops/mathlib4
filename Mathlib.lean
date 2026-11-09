@@ -2125,6 +2125,8 @@ public import Mathlib.Analysis.InnerProductSpace.Laplacian
 public import Mathlib.Analysis.InnerProductSpace.LaxMilgram
 public import Mathlib.Analysis.InnerProductSpace.LinearMap
 public import Mathlib.Analysis.InnerProductSpace.LinearPMap
+public import Mathlib.Analysis.InnerProductSpace.LinearPMap.AdjointComp
+public import Mathlib.Analysis.InnerProductSpace.LinearPMap.VonNeumann
 public import Mathlib.Analysis.InnerProductSpace.MeanErgodic
 public import Mathlib.Analysis.InnerProductSpace.MulOpposite
 public import Mathlib.Analysis.InnerProductSpace.NormDet
