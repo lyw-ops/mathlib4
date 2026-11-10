@@ -1,5 +1,5 @@
 {
-  "head": "1a6a3a60fafd14c6e7378945c23da486f56e4d42",
+  "head": "be64daf7a8e0c7b9826fcce34075b1b0766bbc13",
   "upstream": "7e4e7fce6f5232c04234987ed5fd321aad1ec19e",
   "lean_toolchain": "leanprover/lean4:v4.36.0-rc2",
   "diff_paths": [
