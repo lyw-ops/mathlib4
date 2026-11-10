@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Lazyfill. All rights reserved.
+Copyright (c) 2026 Lyu Yuwei. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Lazyfill
+Authors: Lyu Yuwei
 -/
 module
 
