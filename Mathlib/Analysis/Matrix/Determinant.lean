@@ -28,6 +28,7 @@ At an invertible matrix, the formula becomes `H ↦ det A * trace (A⁻¹ * H)`.
 * `Matrix.hasStrictFDerivAt_det` and `Matrix.hasFDerivAt_det`: Jacobi's formula.
 * `Matrix.fderiv_det` and `Matrix.fderiv_det_apply`: formulas for the differential.
 * `HasDerivAt.matrix_det` and `HasFDerivAt.matrix_det`: derivatives of matrix-valued functions.
+* `DifferentiableAt.matrix_det`: differentiability of their determinants.
 * `Matrix.hasFDerivAt_det_of_isUnit`: the inverse-matrix form of Jacobi's formula.
 
 ## Implementation details
@@ -51,7 +52,7 @@ and the
 
 public section
 
-open scoped Matrix ContDiff
+open scoped ContDiff
 
 variable {n : Type*} [Fintype n] [DecidableEq n] {𝕜 : Type*} [NontriviallyNormedField 𝕜]
 
@@ -77,7 +78,8 @@ theorem contDiff_det {r : ℕ∞ω} : ContDiff 𝕜 r (det : Matrix n n 𝕜 →
 theorem hasStrictFDerivAt_det (A : Matrix n n 𝕜) :
     HasStrictFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       ((traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 A.adjugate, continuous_const.mul continuous_id⟩) A := by
+        ⟨LinearMap.mulLeft 𝕜 A.adjugate,
+          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩) A := by
   refine (detMultilinear.hasStrictFDerivAt (fun i ↦ A i)).congr_fderiv ?_
   ext H
   -- The multilinear derivative replaces one row at a time.
@@ -91,7 +93,8 @@ For rewriting, use `Matrix.fderiv_det_apply`. -/
 theorem hasFDerivAt_det (A : Matrix n n 𝕜) :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       ((traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 A.adjugate, continuous_const.mul continuous_id⟩) A :=
+        ⟨LinearMap.mulLeft 𝕜 A.adjugate,
+          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩) A :=
   (hasStrictFDerivAt_det A).hasFDerivAt
 
 /-- The determinant is differentiable. -/
@@ -102,7 +105,8 @@ theorem differentiable_det : Differentiable 𝕜 (det : Matrix n n 𝕜 → 𝕜
 /-- Jacobi's formula as an equality of continuous linear maps. -/
 theorem fderiv_det (A : Matrix n n 𝕜) :
     fderiv 𝕜 det A = (traceCLM n 𝕜 𝕜).comp
-      ⟨LinearMap.mulLeft 𝕜 A.adjugate, continuous_const.mul continuous_id⟩ :=
+      ⟨LinearMap.mulLeft 𝕜 A.adjugate,
+        (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩ :=
   (hasFDerivAt_det A).fderiv
 
 /-- Jacobi's formula evaluated on a matrix direction. -/
@@ -128,7 +132,8 @@ theorem fderiv_det_apply_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det)
 theorem hasFDerivAt_det_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det) :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       (A.det • (traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 A⁻¹, continuous_const.mul continuous_id⟩) A := by
+        ⟨LinearMap.mulLeft 𝕜 A⁻¹,
+          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩) A := by
   refine (differentiable_det A).hasFDerivAt.congr_fderiv ?_
   ext H
   exact fderiv_det_apply_of_isUnit hA H
@@ -145,25 +150,33 @@ end Matrix
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
 
-open scoped Matrix.Norms.Operator in
 /-- The derivative of the determinant of a matrix-valued function. -/
 @[fun_prop]
 theorem HasFDerivAt.matrix_det {f : E → Matrix n n 𝕜} {f' : E →L[𝕜] Matrix n n 𝕜}
     {x : E} (hf : HasFDerivAt f f' x) :
     HasFDerivAt (fun y ↦ (f y).det)
       (((Matrix.traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 (f x).adjugate, continuous_const.mul continuous_id⟩).comp f') x :=
-  (Matrix.hasFDerivAt_det (f x)).comp x hf
+        ⟨LinearMap.mulLeft 𝕜 (f x).adjugate,
+          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩).comp f') x :=
+  open scoped Matrix.Norms.Operator in
+    (Matrix.hasFDerivAt_det (f x)).comp x hf
 
-open scoped Matrix.Norms.Operator in
+/-- The determinant of a differentiable matrix-valued function is differentiable. -/
+@[fun_prop]
+theorem DifferentiableAt.matrix_det {f : E → Matrix n n 𝕜} {x : E}
+    (hf : DifferentiableAt 𝕜 f x) : DifferentiableAt 𝕜 (fun y ↦ (f y).det) x :=
+  hf.hasFDerivAt.matrix_det.differentiableAt
+
 /-- Jacobi's formula for a differentiable matrix-valued curve. -/
 theorem HasDerivAt.matrix_det {f : 𝕜 → Matrix n n 𝕜} {f' : Matrix n n 𝕜}
     {x : 𝕜} (hf : HasDerivAt f f' x) :
     HasDerivAt (fun t ↦ (f t).det) ((f x).adjugate * f').trace x :=
-  (Matrix.hasFDerivAt_det (f x)).comp_hasDerivAt x hf
+  open scoped Matrix.Norms.Operator in
+    (Matrix.hasFDerivAt_det (f x)).comp_hasDerivAt x hf
 
 open scoped Matrix.Norms.Operator in
-/-- The determinant of a smooth matrix-valued function is smooth. -/
+/-- The determinant of a smooth matrix-valued function is smooth, using the operator norm
+on matrices. -/
 @[fun_prop]
 theorem ContDiff.matrix_det {r : ℕ∞ω} {f : E → Matrix n n 𝕜} (hf : ContDiff 𝕜 r f) :
     ContDiff 𝕜 r (fun x ↦ (f x).det) :=

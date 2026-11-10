@@ -21,8 +21,8 @@ namespace Matrix
 
 /-- The matrix trace as a continuous linear map. -/
 @[expose, simps!]
-def traceCLM (n 𝕜 R : Type*) [Fintype n] [Semiring 𝕜] [AddCommMonoid R]
-    [Module 𝕜 R] [TopologicalSpace R] [ContinuousAdd R] : Matrix n n R →L[𝕜] R :=
-  ⟨traceLinearMap n 𝕜 R, continuous_id.matrix_trace⟩
+def traceCLM (n α R : Type*) [Fintype n] [Semiring α] [AddCommMonoid R]
+    [Module α R] [TopologicalSpace R] [ContinuousAdd R] : Matrix n n R →L[α] R :=
+  ⟨traceLinearMap n α R, continuous_id.matrix_trace⟩
 
 end Matrix
