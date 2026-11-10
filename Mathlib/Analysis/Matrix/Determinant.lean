@@ -106,7 +106,7 @@ theorem hasFDerivAt_det (A : Matrix n n 𝕜) :
 /-- Jacobi's formula evaluated on a direction, including at singular matrices. -/
 theorem fderiv_det_apply (A H : Matrix n n 𝕜) :
     fderiv 𝕜 det A H = trace (A.adjugate * H) :=
-  congrArg (fun L : Matrix n n 𝕜 →L[𝕜] 𝕜 ↦ L H) (hasFDerivAt_det A).fderiv
+  DFunLike.congr_fun (hasFDerivAt_det A).fderiv H
 
 /-- The differential of the determinant is the sum of determinants with one row replaced. -/
 theorem fderiv_det_apply_eq_sum_updateRow (A H : Matrix n n 𝕜) :
