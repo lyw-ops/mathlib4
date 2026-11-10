@@ -1,2 +1,3 @@
+Mathlib.Topology.Algebra.Module.Matrix
 Mathlib.LinearAlgebra.Matrix.AdjugateTrace
 Mathlib.Analysis.Matrix.Determinant

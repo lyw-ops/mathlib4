@@ -1,12 +1,14 @@
 module
 
+import all Mathlib.Topology.Algebra.Module.Matrix
 import all Mathlib.LinearAlgebra.Matrix.AdjugateTrace
 import all Mathlib.Analysis.Matrix.Determinant
 import Lean
 
 run_cmd do
   let env ← Lean.getEnv
-  let modules := #["Mathlib.LinearAlgebra.Matrix.AdjugateTrace",
+  let modules := #["Mathlib.Topology.Algebra.Module.Matrix",
+    "Mathlib.LinearAlgebra.Matrix.AdjugateTrace",
     "Mathlib.Analysis.Matrix.Determinant"]
   let allowed := #[`propext, `Classical.choice, `Quot.sound]
   let mut count : Nat := 0

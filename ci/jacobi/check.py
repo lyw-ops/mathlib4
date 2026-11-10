@@ -32,6 +32,7 @@ def main():
     modules = (assets / "modules.txt").read_text().splitlines()
     client_modules = [
         "Mathlib.Analysis.Calculus.ContDiff.Operations",
+        "Mathlib.Analysis.Calculus.FDeriv.Add",
         "Mathlib.Analysis.Normed.Group.Rat",
         "Mathlib.Data.ZMod.Basic",
     ]
@@ -59,7 +60,10 @@ def main():
             "Mathlib.LinearAlgebra.Matrix.Trace",
         ], *client_modules])
     run("build", ["lake", "--wfail", "build", *modules, *client_modules])
-    for filename in ["ModuleAPIClients.lean", "ModuleUseClients.lean", "Audit.lean"]:
+    for filename in [
+        "ModuleAPIClients.lean", "ModuleUseClients.lean", "CompositionClients.lean",
+        "DifferentiableClients.lean", "SimpClients.lean", "Audit.lean",
+    ]:
         run(Path(filename).stem, [
             "lake", "env", "lean", "-DwarningAsError=true", str(assets / filename)
         ])
@@ -97,7 +101,7 @@ def main():
                 f"Upstream base: `{source['upstream']}`\n\n"
                 "Strict module build, downstream clients, all-declaration axiom audit, "
                 "environment/style linters, import aggregator and patch checks passed.\n\n"
-                "Scope: the two Jacobi modules and their dependencies; "
+                "Scope: the three contribution modules and their dependencies; "
                 "the complete upstream Mathlib CI runs on a formal upstream PR.\n"
             )
     print("All Jacobi contribution checks passed", flush=True)

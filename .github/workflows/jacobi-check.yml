@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   jacobi:
-    name: Jacobi on current upstream
+    name: Jacobi on pinned upstream
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -29,8 +29,8 @@ jobs:
       - name: Check out the fixed Jacobi commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: e6d6af89d9f2d4e9dc976fbcfd696b096e25246d
-          fetch-depth: 2
+          ref: bf79773c997042a1542ebe61e98d01de15eddcc8
+          fetch-depth: 20
           path: source
           persist-credentials: false
       - name: Install the pinned Lean toolchain
