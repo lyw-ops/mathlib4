@@ -26,6 +26,8 @@ def main():
 
     if git("rev-parse", "HEAD") != source["head"]:
         raise SystemExit("The checkout does not match the fixed Jacobi commit")
+    if git("status", "--porcelain", "--untracked-files=no"):
+        raise SystemExit("The fixed source checkout has tracked modifications")
     subprocess.run(
         ["git", "merge-base", "--is-ancestor", source["upstream"], "HEAD"], check=True
     )
@@ -33,10 +35,12 @@ def main():
     client_modules = [
         "Mathlib.Analysis.Calculus.ContDiff.Operations",
         "Mathlib.Analysis.Calculus.FDeriv.Add",
+        "Mathlib.Analysis.Calculus.FDeriv.Mul",
         "Mathlib.Analysis.Normed.Group.Rat",
         "Mathlib.Data.ZMod.Basic",
     ]
-    tracked = ["Mathlib.lean"] + [m.replace(".", "/") + ".lean" for m in modules]
+    test_file = "MathlibTest/Analysis/Matrix/Determinant.lean"
+    tracked = ["Mathlib.lean", test_file] + [m.replace(".", "/") + ".lean" for m in modules]
     hashes = {f: hashlib.sha256(Path(f).read_bytes()).hexdigest() for f in tracked}
 
     def run(label, command):
@@ -60,6 +64,7 @@ def main():
             "Mathlib.LinearAlgebra.Matrix.Trace",
         ], *client_modules])
     run("build", ["lake", "--wfail", "build", *modules, *client_modules])
+    run("repository-tests", ["lake", "env", "lean", "-DwarningAsError=true", test_file])
     for filename in [
         "ModuleAPIClients.lean", "ModuleUseClients.lean", "CompositionClients.lean",
         "DifferentiableClients.lean", "SimpClients.lean", "Audit.lean",
@@ -90,7 +95,7 @@ def main():
         raise SystemExit("A check changed a tracked source file")
     receipt = {
         "source": source, "source_sha256": hashes, "commands": results,
-        "scope": "Jacobi modules, transitive dependencies, clients, axioms and linters",
+        "scope": "Jacobi modules, transitive dependencies, repository tests, clients, axioms and linters",
     }
     (logs / "RECEIPT.json").write_text(json.dumps(receipt, indent=2) + "\n")
     if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
@@ -99,7 +104,8 @@ def main():
                 "## Jacobi contribution checks passed\n\n"
                 f"Tested source: `{source['head']}`\n\n"
                 f"Upstream base: `{source['upstream']}`\n\n"
-                "Strict module build, downstream clients, all-declaration axiom audit, "
+                "Strict module build, committed MathlibTest regression tests, downstream clients, "
+                "all-declaration axiom audit, "
                 "environment/style linters, import aggregator and patch checks passed.\n\n"
                 "Scope: the three contribution modules and their dependencies; "
                 "the complete upstream Mathlib CI runs on a formal upstream PR.\n"
