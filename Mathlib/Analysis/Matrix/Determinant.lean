@@ -34,6 +34,7 @@ At an invertible matrix, the formula becomes `H ↦ det A * trace (A⁻¹ * H)`.
 ## Implementation details
 
 The proof views the determinant as a continuous multilinear map of its rows.
+In the differential, `B • ContinuousLinearMap.id 𝕜 _` is the map `H ↦ B * H`.
 The first-derivative statements use the product topology on matrices, without choosing
 a matrix norm. The smoothness statements use `Matrix.Norms.Operator`. In their proof,
 `toRows` is the continuous linear identity into the sup-normed product of rows.
@@ -78,8 +79,7 @@ theorem contDiff_det {r : ℕ∞ω} : ContDiff 𝕜 r (det : Matrix n n 𝕜 →
 theorem hasStrictFDerivAt_det (A : Matrix n n 𝕜) :
     HasStrictFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       ((traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 A.adjugate,
-          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩) A := by
+        (A.adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) A := by
   refine (detMultilinear.hasStrictFDerivAt (fun i ↦ A i)).congr_fderiv ?_
   ext H
   -- The multilinear derivative replaces one row at a time.
@@ -93,8 +93,7 @@ For rewriting, use `Matrix.fderiv_det_apply`. -/
 theorem hasFDerivAt_det (A : Matrix n n 𝕜) :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       ((traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 A.adjugate,
-          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩) A :=
+        (A.adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) A :=
   (hasStrictFDerivAt_det A).hasFDerivAt
 
 /-- The determinant is differentiable. -/
@@ -105,8 +104,7 @@ theorem differentiable_det : Differentiable 𝕜 (det : Matrix n n 𝕜 → 𝕜
 /-- Jacobi's formula as an equality of continuous linear maps. -/
 theorem fderiv_det (A : Matrix n n 𝕜) :
     fderiv 𝕜 det A = (traceCLM n 𝕜 𝕜).comp
-      ⟨LinearMap.mulLeft 𝕜 A.adjugate,
-        (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩ :=
+      (A.adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜)) :=
   (hasFDerivAt_det A).fderiv
 
 /-- Jacobi's formula evaluated on a matrix direction. -/
@@ -132,8 +130,7 @@ theorem fderiv_det_apply_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det)
 theorem hasFDerivAt_det_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det) :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       (A.det • (traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 A⁻¹,
-          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩) A := by
+        (A⁻¹ • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) A := by
   refine (differentiable_det A).hasFDerivAt.congr_fderiv ?_
   ext H
   exact fderiv_det_apply_of_isUnit hA H
@@ -156,8 +153,7 @@ theorem HasFDerivAt.matrix_det {f : E → Matrix n n 𝕜} {f' : E →L[𝕜] Ma
     {x : E} (hf : HasFDerivAt f f' x) :
     HasFDerivAt (fun y ↦ (f y).det)
       (((Matrix.traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 (f x).adjugate,
-          (continuous_const.mul continuous_id).congr (fun _ ↦ rfl)⟩).comp f') x :=
+        ((f x).adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))).comp f') x :=
   open scoped Matrix.Norms.Operator in
     (Matrix.hasFDerivAt_det (f x)).comp x hf
 
