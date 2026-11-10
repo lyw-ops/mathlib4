@@ -83,7 +83,10 @@ def main():
         "public import " + mod for mod in sorted(modules)
     ) + "\n")
     try:
-        run("style", ["lake", "exe", "lint-style", "Mathlib.JacobiCILint"])
+        run("style", [
+            "lake", "exe", "lint-style", "Mathlib.JacobiCILint",
+            "MathlibTest.Analysis.Matrix.Determinant",
+        ])
     finally:
         aggregator.unlink()
     run("mk-all-check", ["lake", "exe", "mk_all", "--check"])
