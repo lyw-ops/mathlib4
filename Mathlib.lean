@@ -8068,6 +8068,7 @@ public import Mathlib.Topology.Algebra.Module.LinearMap
 public import Mathlib.Topology.Algebra.Module.LinearMapPiProd
 public import Mathlib.Topology.Algebra.Module.LinearPMap
 public import Mathlib.Topology.Algebra.Module.LocallyConvex
+public import Mathlib.Topology.Algebra.Module.Matrix
 public import Mathlib.Topology.Algebra.Module.ModuleTopology
 public import Mathlib.Topology.Algebra.Module.Multilinear.Basic
 public import Mathlib.Topology.Algebra.Module.Multilinear.Bounded
