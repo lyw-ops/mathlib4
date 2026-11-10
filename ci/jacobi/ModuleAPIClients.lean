@@ -24,17 +24,17 @@ variable {n 𝕜 : Type*} [Fintype n] [DecidableEq n] [NontriviallyNormedField �
 -- None of the following first-derivative clients opens a matrix norm scope.
 example (A : Matrix n n 𝕜) :
     HasStrictFDerivAt Matrix.det ((Matrix.traceCLM n 𝕜 𝕜).comp
-      ⟨LinearMap.mulLeft 𝕜 A.adjugate, continuous_const.mul continuous_id⟩) A :=
+      (A.adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) A :=
   Matrix.hasStrictFDerivAt_det A
 
 example (A : Matrix n n 𝕜) :
     HasFDerivAt Matrix.det ((Matrix.traceCLM n 𝕜 𝕜).comp
-      ⟨LinearMap.mulLeft 𝕜 A.adjugate, continuous_const.mul continuous_id⟩) A :=
+      (A.adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) A :=
   Matrix.hasFDerivAt_det A
 
 example (A : Matrix n n 𝕜) :
     fderiv 𝕜 Matrix.det A = (Matrix.traceCLM n 𝕜 𝕜).comp
-      ⟨LinearMap.mulLeft 𝕜 A.adjugate, continuous_const.mul continuous_id⟩ := by
+      (A.adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜)) := by
   rw [Matrix.fderiv_det]
 
 example : HasFDerivAt (Matrix.det : Matrix n n 𝕜 → 𝕜) (Matrix.traceCLM n 𝕜 𝕜) 1 :=
@@ -50,7 +50,7 @@ example {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
     (hf : HasFDerivAt f f' x) :
     HasFDerivAt (fun y ↦ (f y).det)
       (((Matrix.traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 (f x).adjugate, continuous_const.mul continuous_id⟩).comp f') x :=
+        ((f x).adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))).comp f') x :=
   hf.matrix_det
 
 section Frobenius

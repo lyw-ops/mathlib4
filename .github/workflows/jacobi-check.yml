@@ -29,7 +29,7 @@ jobs:
       - name: Check out the fixed Jacobi commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: bf79773c997042a1542ebe61e98d01de15eddcc8
+          ref: 6ce224442a5de11aabf9f660b2800944a3dfef68
           fetch-depth: 20
           path: source
           persist-credentials: false

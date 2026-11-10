@@ -40,7 +40,7 @@ example (A : Matrix (Fin 0) (Fin 0) 𝕜) :
     HasStrictFDerivAt Matrix.det (0 : Matrix (Fin 0) (Fin 0) 𝕜 →L[𝕜] 𝕜) A := by
   refine (Matrix.hasStrictFDerivAt_det A).congr_fderiv ?_
   ext H
-  simp [Matrix.trace]
+  simp
 
 -- A singular, nonsymmetric example detects an accidental transpose in the new map.
 example : fderiv ℝ Matrix.det ( !![0, 1; 0, 0] : Matrix (Fin 2) (Fin 2) ℝ)
@@ -54,7 +54,7 @@ example {E : Type*} [NormedAddCommGroup E] [NormedSpace 𝕜 E]
     (hf : HasFDerivAt f f' x) :
     HasFDerivAt (fun y ↦ (f y).det)
       (((Matrix.traceCLM n 𝕜 𝕜).comp
-        ⟨LinearMap.mulLeft 𝕜 (f x).adjugate, continuous_const.mul continuous_id⟩).comp f') x := by
+        ((f x).adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))).comp f') x := by
   fun_prop
 
 end NoMatrixNorm
