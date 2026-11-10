@@ -27,6 +27,7 @@ Finite index types may be empty; no completeness assumption on the field is need
 * `Matrix.contDiff_det`: smoothness of the determinant.
 * `Matrix.hasStrictFDerivAt_det` and `Matrix.hasFDerivAt_det`: Jacobi's adjugate formula.
 * `Matrix.fderiv_det_apply`: the differential evaluated on a matrix direction.
+* `Matrix.fderiv_det_apply_eq_sum_updateRow`: the differential as a sum of row replacements.
 * `Matrix.hasFDerivAt_det_of_isUnit`: Jacobi's formula in terms of the inverse matrix.
 * `Matrix.hasFDerivAt_det_one`: the differential at the identity is the trace.
 * `Matrix.hasDerivAt_det_one_add_smul`: the derivative of `det (1 + t • B)` at zero.
@@ -41,13 +42,22 @@ using `IsLittleOTVS`, so the derivative statements transfer by unfolding without
 identifying the norms. The continuous linear map in `Matrix.contDiff_det` makes
 the change of norm explicit in the smoothness proof.
 
+To use the smoothness theorem with this norm, open the `Matrix.Norms.Operator` scope.
+The `ContDiff` scope provides the notation `∞`:
+
+```lean
+open scoped Matrix.Norms.Operator ContDiff in
+example : ContDiff ℝ ∞ (Matrix.det : Matrix (Fin 2) (Fin 2) ℝ → ℝ) :=
+  Matrix.contDiff_det
+```
+
 The multilinear proof is adapted from
 [Tau Ceti](https://github.com/TauCetiProject/TauCeti/blob/ed6c0aa3acc0a3cb56901dc406167cdbad593f59/TauCeti/Analysis/Calculus/FDeriv/Det.lean),
 which generalizes the real determinant calculus from the
 [KLS formalization](https://github.com/human-ai-mathematics/kls-lean/blob/9cde7938fc09cd017519c7c8a498bee99c12f717/formalization/FunctionalInequalities/Analysis/Matrix/DeterminantDerivative.lean).
 -/
 
-@[expose] public section
+public section
 
 open scoped Matrix Matrix.Norms.Operator ContDiff
 
@@ -81,6 +91,7 @@ theorem hasStrictFDerivAt_det (A : Matrix n n 𝕜) :
         (ContinuousLinearMap.mul 𝕜 (Matrix n n 𝕜) A.adjugate)) A := by
   refine (detMultilinear.hasStrictFDerivAt (fun i ↦ A i)).congr_fderiv ?_
   ext H
+  -- The multilinear derivative replaces one row at a time.
   rw [ContinuousMultilinearMap.linearDeriv_apply]
   exact sum_det_updateRow_eq_trace_adjugate_mul A H
 
@@ -98,7 +109,7 @@ theorem fderiv_det_apply (A H : Matrix n n 𝕜) :
   congrArg (fun L : Matrix n n 𝕜 →L[𝕜] 𝕜 ↦ L H) (hasFDerivAt_det A).fderiv
 
 /-- The differential of the determinant is the sum of determinants with one row replaced. -/
-theorem fderiv_det_eq_sum_updateRow (A H : Matrix n n 𝕜) :
+theorem fderiv_det_apply_eq_sum_updateRow (A H : Matrix n n 𝕜) :
     fderiv 𝕜 det A H = ∑ i, (A.updateRow i (H i)).det := by
   rw [fderiv_det_apply, sum_det_updateRow_eq_trace_adjugate_mul]
 
@@ -106,6 +117,7 @@ theorem fderiv_det_eq_sum_updateRow (A H : Matrix n n 𝕜) :
 theorem fderiv_det_apply_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det)
     (H : Matrix n n 𝕜) :
     fderiv 𝕜 det A H = A.det * trace (A⁻¹ * H) := by
+  -- Write the inverse as `A.det⁻¹ • A.adjugate`, then cancel `A.det`.
   rw [fderiv_det_apply, nonsing_inv_apply A hA, smul_mul_assoc, trace_smul, smul_eq_mul,
     ← mul_assoc, hA.mul_val_inv, one_mul]
 
@@ -121,17 +133,18 @@ theorem hasFDerivAt_det_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det) :
 /-- The Fréchet derivative of the determinant at the identity is the trace. -/
 theorem hasFDerivAt_det_one :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
-      ⟨traceLinearMap n 𝕜 𝕜, continuous_id.matrix_trace⟩ 1 :=
-  (hasFDerivAt_det 1).congr_fderiv <| by
-    ext H
-    change trace (adjugate (1 : Matrix n n 𝕜) * H) = trace H
-    simp
+      ⟨traceLinearMap n 𝕜 𝕜, continuous_id.matrix_trace⟩ 1 := by
+  refine (hasFDerivAt_det 1).congr_fderiv ?_
+  ext H
+  change trace (adjugate (1 : Matrix n n 𝕜) * H) = trace H
+  simp
 
 /-- The determinant along the line `1 + t • B` has derivative `trace B` at zero. -/
 theorem hasDerivAt_det_one_add_smul (B : Matrix n n 𝕜) :
     HasDerivAt (fun t : 𝕜 ↦ det (1 + t • B)) (trace B) 0 := by
-  have h := hasFDerivAt_det_one.comp_hasDerivAt_of_eq (0 : 𝕜)
-    (((hasDerivAt_id (0 : 𝕜)).smul_const B).const_add 1) (by simp)
-  rwa [one_smul] at h
+  have hline : HasDerivAt (fun t : 𝕜 ↦ 1 + t • B) B 0 :=
+    HasDerivAt.congr_deriv (((hasDerivAt_id (0 : 𝕜)).smul_const B).const_add 1)
+      (one_smul 𝕜 B)
+  exact hasFDerivAt_det_one.comp_hasDerivAt_of_eq 0 hline (by simp)
 
 end Matrix
