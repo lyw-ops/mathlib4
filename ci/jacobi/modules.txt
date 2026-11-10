@@ -1,0 +1,2 @@
+Mathlib.LinearAlgebra.Matrix.AdjugateTrace
+Mathlib.Analysis.Matrix.Determinant

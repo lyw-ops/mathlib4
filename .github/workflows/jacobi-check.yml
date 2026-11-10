@@ -1,0 +1,49 @@
+name: Jacobi contribution checks
+
+on:
+  push:
+    branches: [jacobi-ci]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jacobi-contribution-checks
+  cancel-in-progress: true
+
+jobs:
+  jacobi:
+    name: Jacobi on current upstream
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      LEAN_NUM_THREADS: '2'
+      LAKE_NO_CACHE: 'true'
+    steps:
+      - name: Check out the validation harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: harness
+          persist-credentials: false
+      - name: Check out the fixed Jacobi commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: e6d6af89d9f2d4e9dc976fbcfd696b096e25246d
+          fetch-depth: 2
+          path: source
+          persist-credentials: false
+      - name: Install the pinned Lean toolchain
+        uses: leanprover/lean-action@ba3fdfe5c4476c925da13bf11a005ddb47e47aee
+        with:
+          lake-package-directory: source
+          auto-config: 'false'
+          build: 'false'
+          test: 'false'
+          lint: 'false'
+          mk_all-check: 'false'
+          use-mathlib-cache: 'false'
+          use-github-cache: 'false'
+      - name: Build, test and lint the Jacobi contribution
+        working-directory: source
+        run: python3 ../harness/ci/jacobi/check.py --fetch-cache
