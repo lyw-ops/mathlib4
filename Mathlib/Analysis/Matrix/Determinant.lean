@@ -81,7 +81,8 @@ theorem contDiff_det {r : ℕ∞ω} : ContDiff 𝕜 r (det : Matrix n n 𝕜 →
 theorem differentiable_det : Differentiable 𝕜 (det : Matrix n n 𝕜 → 𝕜) :=
   contDiff_det.differentiable one_ne_zero
 
-/-- **Jacobi's formula** for the strict derivative, valid also at singular matrices. -/
+/-- **Jacobi's formula:** the strict derivative at `A` is
+`H ↦ trace (A.adjugate * H)`, including at singular matrices. -/
 theorem hasStrictFDerivAt_det (A : Matrix n n 𝕜) :
     HasStrictFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       ((⟨traceLinearMap n 𝕜 𝕜, continuous_id.matrix_trace⟩ : Matrix n n 𝕜 →L[𝕜] 𝕜).comp
@@ -92,7 +93,9 @@ theorem hasStrictFDerivAt_det (A : Matrix n n 𝕜) :
   rw [ContinuousMultilinearMap.linearDeriv_apply]
   exact sum_det_updateRow_eq_trace_adjugate_mul A H
 
-/-- **Jacobi's formula** for the Fréchet derivative, with no invertibility premise.
+/-- **Jacobi's formula:** the Fréchet derivative at `A` is
+`H ↦ trace (A.adjugate * H)`, including at singular matrices.
+
 For rewriting, use `Matrix.fderiv_det_apply`. -/
 theorem hasFDerivAt_det (A : Matrix n n 𝕜) :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
@@ -118,7 +121,8 @@ theorem fderiv_det_apply_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det)
   rw [fderiv_det_apply, nonsing_inv_apply A hA, smul_mul_assoc, trace_smul, smul_eq_mul,
     ← mul_assoc, hA.mul_val_inv, one_mul]
 
-/-- The inverse form of the Fréchet derivative of the determinant. -/
+/-- **Jacobi's formula** at a matrix `A` with invertible determinant: the Fréchet derivative is
+`H ↦ A.det * trace (A⁻¹ * H)`. -/
 theorem hasFDerivAt_det_of_isUnit {A : Matrix n n 𝕜} (hA : IsUnit A.det) :
     HasFDerivAt (det : Matrix n n 𝕜 → 𝕜)
       (A.det • (⟨traceLinearMap n 𝕜 𝕜, continuous_id.matrix_trace⟩ : Matrix n n 𝕜 →L[𝕜] 𝕜).comp
