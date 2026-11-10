@@ -30,6 +30,11 @@ def main():
         ["git", "merge-base", "--is-ancestor", source["upstream"], "HEAD"], check=True
     )
     modules = (assets / "modules.txt").read_text().splitlines()
+    client_modules = [
+        "Mathlib.Analysis.Calculus.ContDiff.Operations",
+        "Mathlib.Analysis.Normed.Group.Rat",
+        "Mathlib.Data.ZMod.Basic",
+    ]
     tracked = ["Mathlib.lean"] + [m.replace(".", "/") + ".lean" for m in modules]
     hashes = {f: hashlib.sha256(Path(f).read_bytes()).hexdigest() for f in tracked}
 
@@ -52,8 +57,8 @@ def main():
             "Mathlib.Analysis.Matrix.Normed",
             "Mathlib.LinearAlgebra.Matrix.Adjugate",
             "Mathlib.LinearAlgebra.Matrix.Trace",
-        ]])
-    run("build", ["lake", "--wfail", "build", *modules])
+        ], *client_modules])
+    run("build", ["lake", "--wfail", "build", *modules, *client_modules])
     for filename in ["ModuleAPIClients.lean", "ModuleUseClients.lean", "Audit.lean"]:
         run(Path(filename).stem, [
             "lake", "env", "lean", "-DwarningAsError=true", str(assets / filename)
