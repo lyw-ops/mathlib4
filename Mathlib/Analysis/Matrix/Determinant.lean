@@ -18,8 +18,10 @@ import Mathlib.LinearAlgebra.Matrix.AdjugateTrace
 /-!
 # Smoothness and derivatives of the determinant
 
-Jacobi's formula gives the derivative of the determinant at any square matrix:
-`H ↦ trace (adjugate A * H)`. No invertibility or completeness assumption is needed.
+Jacobi's formula gives the Fréchet derivative of the determinant at any finite square
+matrix over a nontrivially normed field:
+`H ↦ trace (adjugate A * H)`.
+No invertibility or completeness assumption is needed, and the index type may be empty.
 At an invertible matrix, the formula becomes `H ↦ det A * trace (A⁻¹ * H)`.
 
 ## Main results
@@ -42,16 +44,17 @@ In the differential, `B • ContinuousLinearMap.id 𝕜 _` is the map `H ↦ B *
 The first-derivative statements use the product topology on matrices, without choosing
 a matrix norm.
 
-Smoothness is only defined on normed spaces, so each smoothness statement fixes a matrix norm.
+Mathlib's `ContDiff` predicates require normed space structures, so each smoothness
+statement here specifies a matrix norm.
 The composition lemmas `ContDiff.matrix_det`, `ContDiffAt.matrix_det`, ... use
 `Matrix.Norms.Operator`. For the other two norms, compose with
-`Matrix.contDiff_det_elementwise` or `Matrix.contDiff_det_frobenius`. For `ContDiffWithinAt`,
-use `ContDiff.comp_contDiffWithinAt` explicitly: `fun_prop` does not currently handle this
-composition for those norms.
+`Matrix.contDiff_det_elementwise` or `Matrix.contDiff_det_frobenius`.
+For `ContDiffWithinAt` with the elementwise or Frobenius norm, compose explicitly
+using `ContDiff.comp_contDiffWithinAt`.
 
-The proof is adapted from
-[Tau Ceti](https://github.com/TauCetiProject/TauCeti/blob/ed6c0aa3acc0a3cb56901dc406167cdbad593f59/TauCeti/Analysis/Calculus/FDeriv/Det.lean)
-and the
+The multilinear proof is adapted from
+[Tau Ceti](https://github.com/TauCetiProject/TauCeti/blob/ed6c0aa3acc0a3cb56901dc406167cdbad593f59/TauCeti/Analysis/Calculus/FDeriv/Det.lean),
+which generalizes the real determinant calculus from the
 [KLS formalization](https://github.com/human-ai-mathematics/kls-lean/blob/9cde7938fc09cd017519c7c8a498bee99c12f717/formalization/FunctionalInequalities/Analysis/Matrix/DeterminantDerivative.lean).
 -/
 
