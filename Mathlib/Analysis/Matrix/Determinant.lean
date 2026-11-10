@@ -27,10 +27,7 @@ Finite index types may be empty; no completeness assumption on the field is need
 * `Matrix.contDiff_det`: smoothness of the determinant.
 * `Matrix.hasStrictFDerivAt_det` and `Matrix.hasFDerivAt_det`: Jacobi's adjugate formula.
 * `Matrix.fderiv_det_apply`: the differential evaluated on a matrix direction.
-* `Matrix.fderiv_det_apply_eq_sum_updateRow`: the differential as a sum of row replacements.
 * `Matrix.hasFDerivAt_det_of_isUnit`: Jacobi's formula in terms of the inverse matrix.
-* `Matrix.hasFDerivAt_det_one`: the differential at the identity is the trace.
-* `Matrix.hasDerivAt_det_one_add_smul`: the derivative of `det (1 + t • B)` at zero.
 
 ## Implementation details
 
@@ -75,9 +72,9 @@ private noncomputable def detMultilinear :
 @[fun_prop]
 theorem contDiff_det {r : ℕ∞ω} : ContDiff 𝕜 r (det : Matrix n n 𝕜 → 𝕜) := by
   -- The identity from operator-normed matrices to the sup-normed product of rows.
-  let L : Matrix n n 𝕜 →L[𝕜] (n → n → 𝕜) :=
+  let toRows : Matrix n n 𝕜 →L[𝕜] (n → n → 𝕜) :=
     { (Matrix.ofLinearEquiv 𝕜).symm.toLinearMap with cont := continuous_id }
-  exact (detMultilinear (n := n) (𝕜 := 𝕜)).contDiff.comp L.contDiff
+  exact (detMultilinear (n := n) (𝕜 := 𝕜)).contDiff.comp toRows.contDiff
 
 /-- The determinant is differentiable without a completeness assumption on the field. -/
 @[fun_prop]
@@ -142,9 +139,10 @@ theorem hasFDerivAt_det_one :
 /-- The determinant along the line `1 + t • B` has derivative `trace B` at zero. -/
 theorem hasDerivAt_det_one_add_smul (B : Matrix n n 𝕜) :
     HasDerivAt (fun t : 𝕜 ↦ det (1 + t • B)) (trace B) 0 := by
+  have hsmul : HasDerivAt (fun t : 𝕜 ↦ t • B) B 0 :=
+    ((hasDerivAt_id (0 : 𝕜)).smul_const B).congr_deriv (one_smul 𝕜 B)
   have hline : HasDerivAt (fun t : 𝕜 ↦ 1 + t • B) B 0 :=
-    HasDerivAt.congr_deriv (((hasDerivAt_id (0 : 𝕜)).smul_const B).const_add 1)
-      (one_smul 𝕜 B)
+    hsmul.const_add 1
   exact hasFDerivAt_det_one.comp_hasDerivAt_of_eq 0 hline (by simp)
 
 end Matrix
