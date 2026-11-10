@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Lyu Yuwei. All rights reserved.
+Copyright (c) 2026 The Tau Ceti contributors, Lyu Yuwei. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Lyu Yuwei
+Authors: The Tau Ceti contributors, Lyu Yuwei
 -/
 module
 
@@ -44,8 +44,10 @@ a matrix norm.
 
 Smoothness is only defined on normed spaces, so each smoothness statement fixes a matrix norm.
 The composition lemmas `ContDiff.matrix_det`, `ContDiffAt.matrix_det`, ... use
-`Matrix.Norms.Operator`; for the other two norms, compose with `Matrix.contDiff_det_elementwise`
-or `Matrix.contDiff_det_frobenius`, or use `fun_prop`.
+`Matrix.Norms.Operator`. For the other two norms, compose with
+`Matrix.contDiff_det_elementwise` or `Matrix.contDiff_det_frobenius`. For `ContDiffWithinAt`,
+use `ContDiff.comp_contDiffWithinAt` explicitly: `fun_prop` does not currently handle this
+composition for those norms.
 
 The proof is adapted from
 [Tau Ceti](https://github.com/TauCetiProject/TauCeti/blob/ed6c0aa3acc0a3cb56901dc406167cdbad593f59/TauCeti/Analysis/Calculus/FDeriv/Det.lean)
@@ -175,8 +177,7 @@ variable {f : E → Matrix n n 𝕜} {f' : E →L[𝕜] Matrix n n 𝕜} {x : E}
 @[fun_prop]
 theorem HasStrictFDerivAt.matrix_det (hf : HasStrictFDerivAt f f' x) :
     HasStrictFDerivAt (fun y ↦ (f y).det)
-      ((Matrix.traceCLM n 𝕜 𝕜 ∘L
-        ((f x).adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) ∘L f') x :=
+      (Matrix.traceCLM n 𝕜 𝕜 ∘L ((f x).adjugate • f')) x :=
   open scoped Matrix.Norms.Operator in
     (Matrix.hasStrictFDerivAt_det (f x)).comp x hf
 
@@ -184,8 +185,7 @@ theorem HasStrictFDerivAt.matrix_det (hf : HasStrictFDerivAt f f' x) :
 @[fun_prop]
 theorem HasFDerivWithinAt.matrix_det (hf : HasFDerivWithinAt f f' s x) :
     HasFDerivWithinAt (fun y ↦ (f y).det)
-      ((Matrix.traceCLM n 𝕜 𝕜 ∘L
-        ((f x).adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) ∘L f') s x :=
+      (Matrix.traceCLM n 𝕜 𝕜 ∘L ((f x).adjugate • f')) s x :=
   open scoped Matrix.Norms.Operator in
     (Matrix.hasFDerivAt_det (f x)).comp_hasFDerivWithinAt x hf
 
@@ -193,8 +193,7 @@ theorem HasFDerivWithinAt.matrix_det (hf : HasFDerivWithinAt f f' s x) :
 @[fun_prop]
 theorem HasFDerivAt.matrix_det (hf : HasFDerivAt f f' x) :
     HasFDerivAt (fun y ↦ (f y).det)
-      ((Matrix.traceCLM n 𝕜 𝕜 ∘L
-        ((f x).adjugate • ContinuousLinearMap.id 𝕜 (Matrix n n 𝕜))) ∘L f') x :=
+      (Matrix.traceCLM n 𝕜 𝕜 ∘L ((f x).adjugate • f')) x :=
   open scoped Matrix.Norms.Operator in
     (Matrix.hasFDerivAt_det (f x)).comp x hf
 

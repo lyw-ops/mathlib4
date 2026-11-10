@@ -86,6 +86,12 @@ example (f : ℝ → Matrix n n ℝ) (hf : ContDiff ℝ 2 f) :
     ContDiff ℝ 2 (fun t ↦ (f t).det) := by
   fun_prop
 
+-- Within-at composition uses the general chain rule explicitly for this norm.
+example (f : ℝ → Matrix n n ℝ) (s : Set ℝ) (x : ℝ)
+    (hf : ContDiffWithinAt ℝ 2 f s x) :
+    ContDiffWithinAt ℝ 2 (fun t ↦ (f t).det) s x :=
+  contDiff_det_elementwise.comp_contDiffWithinAt hf
+
 end Elementwise
 
 section Frobenius
@@ -101,5 +107,11 @@ example (f : ℝ → Matrix n n ℝ) (s : Set ℝ) (hf : ContDiffOn ℝ 2 f s) :
 /-- The first-derivative statements also apply when a norm is in scope. -/
 example (B : Matrix n n ℝ) : HasDerivAt (fun t : ℝ ↦ det (1 + t • B)) B.trace 0 :=
   hasDerivAt_det_one_add_smul B
+
+-- Within-at composition uses the general chain rule explicitly for this norm.
+example (f : ℝ → Matrix n n ℝ) (s : Set ℝ) (x : ℝ)
+    (hf : ContDiffWithinAt ℝ 2 f s x) :
+    ContDiffWithinAt ℝ 2 (fun t ↦ (f t).det) s x :=
+  contDiff_det_frobenius.comp_contDiffWithinAt hf
 
 end Frobenius

@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Lyu Yuwei. All rights reserved.
+Copyright (c) 2026 The Tau Ceti contributors, Lyu Yuwei. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Lyu Yuwei
+Authors: The Tau Ceti contributors, Lyu Yuwei
 -/
 module
 
