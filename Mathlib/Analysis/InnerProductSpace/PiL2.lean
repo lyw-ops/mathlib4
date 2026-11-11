@@ -337,7 +337,7 @@ theorem EuclideanSpace.orthonormal_single :
 
 theorem EuclideanSpace.piLpCongrLeft_single
     {ι' : Type*} [Fintype ι'] [DecidableEq ι'] (e : ι' ≃ ι) (i' : ι') (v : 𝕜) :
-    LinearIsometryEquiv.piLpCongrLeft 2 𝕜 𝕜 e (EuclideanSpace.single i' v) =
+    LinearIsometryEquiv.piLpCongrLeft 2 𝕜 (fun _ ↦ 𝕜) e (EuclideanSpace.single i' v) =
       EuclideanSpace.single (e i') v :=
   LinearIsometryEquiv.piLpCongrLeft_single e i' _
 
@@ -359,7 +359,8 @@ abbrev EuclideanSpace.sumEquivProd {𝕜 : Type*} [RCLike 𝕜] {ι κ : Type*} 
 `EuclideanSpace 𝕜 (Fin n) × EuclideanSpace 𝕜 (Fin m)`. -/
 abbrev EuclideanSpace.finAddEquivProd {𝕜 : Type*} [RCLike 𝕜] {n m : ℕ} :
     EuclideanSpace 𝕜 (Fin (n + m)) ≃L[𝕜] EuclideanSpace 𝕜 (Fin n) × EuclideanSpace 𝕜 (Fin m) :=
-  (LinearIsometryEquiv.piLpCongrLeft 2 𝕜 𝕜 finSumFinEquiv.symm).toContinuousLinearEquiv.trans
+  (LinearIsometryEquiv.piLpCongrLeft 2 𝕜 (fun _ ↦ 𝕜)
+    finSumFinEquiv.symm).toContinuousLinearEquiv.trans
     sumEquivProd
 
 end finAddEquivProd
@@ -752,7 +753,7 @@ variable [Fintype ι']
 
 /-- `b.reindex (e : ι ≃ ι')` is an `OrthonormalBasis` indexed by `ι'` -/
 def reindex (b : OrthonormalBasis ι 𝕜 E) (e : ι ≃ ι') : OrthonormalBasis ι' 𝕜 E :=
-  OrthonormalBasis.ofRepr (b.repr.trans (LinearIsometryEquiv.piLpCongrLeft 2 𝕜 𝕜 e))
+  OrthonormalBasis.ofRepr (b.repr.trans (LinearIsometryEquiv.piLpCongrLeft 2 𝕜 (fun _ ↦ 𝕜) e))
 
 protected theorem reindex_apply (b : OrthonormalBasis ι 𝕜 E) (e : ι ≃ ι') (i' : ι') :
     (b.reindex e) i' = b (e.symm i') := by
@@ -765,7 +766,10 @@ protected theorem reindex_apply (b : OrthonormalBasis ι 𝕜 E) (e : ι ≃ ι'
 
 @[simp]
 theorem reindex_toBasis (b : OrthonormalBasis ι 𝕜 E) (e : ι ≃ ι') :
-    (b.reindex e).toBasis = b.toBasis.reindex e := Basis.eq_ofRepr_eq_repr fun _ ↦ congr_fun rfl
+    (b.reindex e).toBasis = b.toBasis.reindex e := by
+  apply Basis.eq_of_apply_eq
+  intro i
+  simpa only [Basis.reindex_apply, OrthonormalBasis.coe_toBasis] using b.reindex_apply e i
 
 @[simp]
 protected theorem coe_reindex (b : OrthonormalBasis ι 𝕜 E) (e : ι ≃ ι') :
@@ -819,7 +823,7 @@ variable {E' : Type*} [Fintype ι'] [NormedAddCommGroup E'] [InnerProductSpace �
 /-- The `LinearIsometryEquiv` which maps an orthonormal basis to another. This is a convenience
 wrapper around `Orthonormal.equiv`. -/
 protected def equiv : E ≃ₗᵢ[𝕜] E' :=
-  b.repr.trans <| .trans (.piLpCongrLeft _ _ _ e) b'.repr.symm
+  b.repr.trans <| .trans (.piLpCongrLeft 2 𝕜 (fun _ ↦ 𝕜) e) b'.repr.symm
 
 @[simp]
 lemma equiv_symm : (b.equiv b' e).symm = b'.equiv b e.symm := by
