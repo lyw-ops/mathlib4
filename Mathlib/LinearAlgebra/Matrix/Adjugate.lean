@@ -9,6 +9,7 @@ public import Mathlib.GroupTheory.GroupAction.Ring
 public import Mathlib.LinearAlgebra.Matrix.MvPolynomial
 public import Mathlib.LinearAlgebra.Matrix.Polynomial
 public import Mathlib.LinearAlgebra.Matrix.Symmetric
+public import Mathlib.LinearAlgebra.Matrix.Trace
 
 /-!
 # Cramer's rule and adjugate matrices
@@ -253,6 +254,23 @@ theorem cramer_eq_adjugate_mulVec (A : Matrix n n α) (b : n → α) :
     rw [this]
   ext k
   simp [mulVec, dotProduct, mul_comm]
+
+/-- **Jacobi's formula, by rows.** Replacing the `i`-th row of `A` by the `i`-th row of `B` and
+summing the determinants over `i` gives `trace (adj A * B)`, the derivative of `det` at `A` in the
+direction `B`. -/
+theorem sum_det_updateRow_eq_trace_adjugate_mul (A B : Matrix n n α) :
+    ∑ i, (A.updateRow i (B i)).det = (adjugate A * B).trace := by
+  simp only [← cramer_transpose_apply, cramer_eq_adjugate_mulVec, ← adjugate_transpose, trace,
+    diag_apply, Matrix.mul_apply, mulVec, dotProduct, transpose_apply]
+  exact Finset.sum_comm
+
+/-- **Jacobi's formula, by columns.** Replacing the `j`-th column of `A` by the `j`-th column of `B`
+and summing the determinants over `j` gives `trace (adj A * B)`, the derivative of `det` at `A` in
+the direction `B`. -/
+theorem sum_det_updateCol_eq_trace_adjugate_mul (A B : Matrix n n α) :
+    ∑ j, (A.updateCol j fun i ↦ B i j).det = (adjugate A * B).trace := by
+  simp only [← cramer_apply, cramer_eq_adjugate_mulVec, trace, diag_apply, Matrix.mul_apply, mulVec,
+    dotProduct]
 
 theorem mul_adjugate_apply (A : Matrix n n α) (i j k) :
     A i k * adjugate A k j = cramer Aᵀ (Pi.single k (A i k)) j := by

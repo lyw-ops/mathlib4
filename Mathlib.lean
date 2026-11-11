@@ -1862,6 +1862,7 @@ public import Mathlib.Analysis.Calculus.FDeriv.Const
 public import Mathlib.Analysis.Calculus.FDeriv.ContinuousAlternatingMap
 public import Mathlib.Analysis.Calculus.FDeriv.ContinuousMultilinearMap
 public import Mathlib.Analysis.Calculus.FDeriv.Defs
+public import Mathlib.Analysis.Calculus.FDeriv.Det
 public import Mathlib.Analysis.Calculus.FDeriv.Equiv
 public import Mathlib.Analysis.Calculus.FDeriv.Extend
 public import Mathlib.Analysis.Calculus.FDeriv.Linear
@@ -2177,6 +2178,7 @@ public import Mathlib.Analysis.Matrix.GelfandRadius
 public import Mathlib.Analysis.Matrix.Hermitian
 public import Mathlib.Analysis.Matrix.HermitianFunctionalCalculus
 public import Mathlib.Analysis.Matrix.LDL
+public import Mathlib.Analysis.Matrix.LogDet
 public import Mathlib.Analysis.Matrix.MeasurableSpace
 public import Mathlib.Analysis.Matrix.Normed
 public import Mathlib.Analysis.Matrix.Order
