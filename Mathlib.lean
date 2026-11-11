@@ -1802,6 +1802,7 @@ public import Mathlib.Analysis.Calculus.AddTorsor.AffineMap
 public import Mathlib.Analysis.Calculus.AddTorsor.Coord
 public import Mathlib.Analysis.Calculus.BumpFunction.Basic
 public import Mathlib.Analysis.Calculus.BumpFunction.Convolution
+public import Mathlib.Analysis.Calculus.BumpFunction.Extension
 public import Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension
 public import Mathlib.Analysis.Calculus.BumpFunction.InnerProduct
 public import Mathlib.Analysis.Calculus.BumpFunction.Normed
